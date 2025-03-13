@@ -1,0 +1,12 @@
+Application Usage Analysis
+========================
+
+Application          Use Case                  Times Used      Time Spent (min)     AI Integration  Automation Potential Complexity Score
+--------------------------------------------------------------------------------------------------------------
+Terminal             Code Development          12              11.59                High            Medium               2              
+Unknown              Unknown                   7               6.02                 Medium          Medium               2              
+Slack                Unknown                   3               3.01                 High            Medium               2              
+Visual Studio        Documentation             1               1.00                 High            High                 3              
+Chrome               Unknown                   1               1.00                 Low             Low                  1              
+--------------------------------------------------------------------------------------------------------------
+TOTAL                                          24              22.63                                                                    
