@@ -1,1 +1,17 @@
-Pillow>=10.0.0  # For Windows screenshots 
+# Image processing
+Pillow>=10.0.0  # For Windows screenshots
+numpy>=1.24.0  # Common dependency for image processing
+
+# GUI and system interaction
+pyautogui>=0.9.54  # For screen interaction and automation
+opencv-python>=4.8.0  # For image recognition and processing
+pyscreeze>=0.1.28  # For cross-platform screenshots
+
+# Utility packages
+requests>=2.31.0  # For HTTP requests
+python-dotenv>=1.0.0  # For environment variable management
+tqdm>=4.66.0  # For progress bars
+
+# Optional but recommended
+pytest>=7.4.0  # For testing
+black>=23.7.0  # For code formatting 

@@ -12,38 +12,42 @@ A powerful tool for analyzing screen time, productivity, and work patterns throu
 
 ## Features
 
-### Current Features
-- Local screenshots 
-- deployment and data storage
-- Automated screenshot capture and analysis
-- Multi-screen support and monitoring
-- Screen usage tracking and analytics
+### Basic Features
+- [x] Local screenshots 
+- [x] deployment and data storage
+- [x] Automated screenshot capture and analysis
+- [x] Multi-screen support and monitoring
+- [x] Screen usage tracking and analytics
+- [x] Time spent per application/screen
 
-### Planned Improvements
+#### Screen Management
+- [x] View all connected screens
+   - [x] detects all connected monitors
+   - [x] Works on both macOS (using system_profiler) and Windows (using win32api if available)
+- [x] Track active vs. inactive screens
+   - [x] detects if the screen is active or inactive
+- [x] Screen usage statistics
+- [x] Multi-monitor support
+   - [x] A specific monitor (using --monitor [ID])
+   - [x] All monitors simultaneously (using --all-monitors)
+   - [x] Just the active monitor (default behavior)
 
-#### 1. Time Tracking and Analysis
-- Daily reports with detailed breakdowns
-- Time spent per application/screen
-- Activity patterns and trends
-- Productivity metrics and insights
-
-#### 2. Screen Management
-- View all connected screens
-- Track active vs. inactive screens
-- Screen usage statistics
-- Multi-monitor support
+#### Time Tracking and Analysis
+- [ ] Daily reports with detailed breakdowns
+- [ ] Activity patterns and trends
+- [ ] Productivity metrics and insights
 
 #### 3. Productivity Analysis
-- Screenshot-based activity tracking
-- Application usage patterns
-- Focus time vs. distraction metrics
-- Productivity score calculations
+- [ ] Screenshot-based activity tracking
+- [ ] Application usage patterns
+- [ ] Focus time vs. distraction metrics
+- [ ] Productivity score calculations
 
 #### 4. Company Questions Integration
-- Built-in questionnaire system
-- Progress tracking
-- Response analysis
-- Performance metrics
+- [ ] Built-in questionnaire system
+- [ ] Progress tracking
+- [ ] Response analysis
+- [ ] Performance metrics
 
 ## Getting Started
 
