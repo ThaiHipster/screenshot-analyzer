@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import base64
 from datetime import datetime
@@ -11,6 +12,73 @@ import json
 # Load environment variables
 load_dotenv()
 
+# Base directories
+DATA_DIR = "data"
+REPORTS_DIR = "reports"
+
+def get_daily_folder(date_str=None):
+    """
+    Get the folder path for a specific day's data.
+    If date_str is None, uses current day.
+    """
+    if date_str is None:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+    daily_dir = os.path.join(DATA_DIR, date_str)
+    return daily_dir
+
+def get_screenshots_dir(date_str=None):
+    """
+    Get the screenshots directory for a specific day.
+    """
+    daily_dir = get_daily_folder(date_str)
+    return os.path.join(daily_dir, "screenshots")
+
+def process_screenshots(date_str=None, limit=5):
+    """
+    Process screenshots for a specific day.
+    If date_str is None, processes current day's screenshots.
+    """
+    analyzer = OptimizedTimeStudyAnalyzer()
+    
+    print("Starting optimized time study analysis...")
+    print("Analyzing screenshots...")
+    analyses = analyzer.analyze_folder(date_str, limit=limit)
+    
+    if not analyses:
+        print("No screenshots found to analyze.")
+        return
+    
+    # Get the reports directory for the day
+    reports_dir = analyzer.get_reports_folder(date_str)
+    
+    # Generate and save report
+    report = analyzer.generate_report(analyses)
+    
+    # Generate application usage table
+    app_usage_table = analyzer.generate_application_usage_table(analyses)
+    
+    # Save detailed JSON results
+    with open(os.path.join(reports_dir, 'optimized_time_study_results.json'), 'w') as f:
+        json.dump(analyses, f, indent=2)
+    
+    # Save human-readable report
+    with open(os.path.join(reports_dir, 'optimized_time_study_report.txt'), 'w') as f:
+        f.write(report)
+    
+    with open(os.path.join(reports_dir, 'summarized_time_study_report.txt'), 'w') as f:
+        f.write(app_usage_table)
+
+    print("Analysis complete! Reports have been saved to:", reports_dir)
+
+def generate_time_study_report(date_str=None):
+    """
+    Generate time study report for a specific day.
+    """
+    daily_dir = get_daily_folder(date_str)
+    report_path = os.path.join(daily_dir, "reports", "time_study_report.txt")
+    
+    # ... existing code ...
+
 class OptimizedTimeStudyAnalyzer:
     def __init__(self):
         self.api_key = os.getenv('OPENAI_API_KEY')
@@ -18,7 +86,6 @@ class OptimizedTimeStudyAnalyzer:
             raise ValueError("Please set OPENAI_API_KEY in your .env file")
         
         openai.api_key = self.api_key
-        self.data_folder = os.path.join("screenshots")
         self.supported_formats = ('.png', '.jpg', '.jpeg')
         
         # Image optimization parameters
@@ -73,9 +140,9 @@ class OptimizedTimeStudyAnalyzer:
                         if tag_id in Image.TAGS and Image.TAGS[tag_id] == 'DateTime':
                             return datetime.strptime(exif[tag_id], '%Y:%m:%d %H:%M:%S')
             
-            # Fallback to filename (format: @screenshot_YYYYMMDDHHMMSS.png)
+            # Fallback to filename (format: screenshot_YYYYMMDDHHMMSS.png)
             filename = os.path.basename(image_path)
-            timestamp_str = filename.split('@screenshot_')[1].split('.')[0]
+            timestamp_str = filename.split('screenshot_')[1].split('_')[0]
             return datetime.strptime(timestamp_str, '%Y%m%d%H%M%S')
         except:
             # If all fails, use file modification time
@@ -145,19 +212,36 @@ Provide a structured response with clear sections."""
                 "timestamp": timestamp.isoformat(),
                 "error": str(e)
             }
+            
+    def get_data_folder(self, date_str=None):
+        """Get the appropriate data folder for the given date."""
+        return get_screenshots_dir(date_str)
+        
+    def get_reports_folder(self, date_str=None):
+        """Get the reports folder for the given date."""
+        daily_dir = get_daily_folder(date_str)
+        reports_dir = os.path.join(daily_dir, "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+        return reports_dir
 
-    def analyze_folder(self, limit=None) -> List[Dict]:
+    def analyze_folder(self, date_str=None, limit=None) -> List[Dict]:
         """
         Analyze screenshots in the data folder.
         
         Args:
+            date_str: Optional date string in YYYY-MM-DD format
             limit: Optional integer to limit the number of images processed
         """
         results = []
+        data_folder = self.get_data_folder(date_str)
+        
+        if not os.path.exists(data_folder):
+            print(f"No screenshots directory found for date: {date_str or 'today'}")
+            return results
         
         # Get all image files from data folder
         image_files = [
-            f for f in os.listdir(self.data_folder)
+            f for f in os.listdir(data_folder)
             if f.lower().endswith(self.supported_formats)
         ]
         
@@ -169,7 +253,7 @@ Provide a structured response with clear sections."""
             image_files = image_files[:limit]
         
         for image_file in image_files:
-            image_path = os.path.join(self.data_folder, image_file)
+            image_path = os.path.join(data_folder, image_file)
             result = self.analyze_image(image_path)
             results.append(result)
             print(f"Processed {image_file}")
@@ -362,31 +446,5 @@ Provide a structured response with clear sections."""
         
         return table
 
-def main():
-    analyzer = OptimizedTimeStudyAnalyzer()
-    
-    print("Starting optimized time study analysis...")
-    print("Analyzing screenshots...")
-    analyses = analyzer.analyze_folder(limit=100)
-    
-    # Generate and save report
-    report = analyzer.generate_report(analyses)
-    
-    # Generate application usage table
-    app_usage_table = analyzer.generate_application_usage_table(analyses)
-    
-    # Save detailed JSON results
-    with open('optimized_time_study_results.json', 'w') as f:
-        json.dump(analyses, f, indent=2)
-    
-    # Save human-readable report
-    with open('optimized_time_study_report.txt', 'w') as f:
-        f.write(app_usage_table)
-    
-    with open('summarized_time_study_report.txt', 'w') as f:
-        f.write(app_usage_table)
-
-    print("Analysis complete! Check optimized_time_study_report.txt for the detailed report.")
-
 if __name__ == "__main__":
-    main()
+    process_screenshots()

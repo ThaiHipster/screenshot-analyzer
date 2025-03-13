@@ -7,8 +7,32 @@ import argparse
 import json
 import subprocess
 
-# For screen activity tracking
-ACTIVITY_LOG_FILE = "screen_activity.json"
+# Base directories
+DATA_DIR = "data"
+REPORTS_DIR = "reports"
+
+def get_daily_folder():
+    """
+    Get the folder path for the current day's data.
+    Creates the folder structure if it doesn't exist.
+    """
+    today = datetime.now().strftime("%Y-%m-%d")
+    daily_dir = os.path.join(DATA_DIR, today)
+    screenshots_dir = os.path.join(daily_dir, "screenshots")
+    reports_dir = os.path.join(daily_dir, "reports")
+    
+    # Create directories if they don't exist
+    os.makedirs(screenshots_dir, exist_ok=True)
+    os.makedirs(reports_dir, exist_ok=True)
+    
+    return daily_dir
+
+def get_activity_log_file():
+    """
+    Get the path to the activity log file for the current day.
+    """
+    daily_dir = get_daily_folder()
+    return os.path.join(daily_dir, "activity.json")
 
 def get_monitors():
     """
@@ -115,53 +139,37 @@ def detect_active_screen():
 
 def update_screen_activity(monitors):
     """
-    Update and save screen activity data.
+    Update the screen activity log with the current timestamp and monitor states.
     """
-    activity_data = {}
-    
-    # Load existing data if available
-    if os.path.exists(ACTIVITY_LOG_FILE):
-        try:
-            with open(ACTIVITY_LOG_FILE, 'r') as f:
-                activity_data = json.load(f)
-        except json.JSONDecodeError:
-            activity_data = {}
-    
-    # Get current timestamp
+    activity_file = get_activity_log_file()
     timestamp = datetime.now().isoformat()
     
-    # Update activity for each monitor
-    for monitor in monitors:
-        monitor_id = str(monitor['id'])
-        if monitor_id not in activity_data:
-            activity_data[monitor_id] = {
-                'name': monitor['name'],
-                'activity': []
-            }
-        
-        activity_data[monitor_id]['activity'].append({
-            'timestamp': timestamp,
-            'active': monitor['active']
-        })
-        
-        # Limit the size of the activity log (keep last 1000 entries)
-        if len(activity_data[monitor_id]['activity']) > 1000:
-            activity_data[monitor_id]['activity'] = activity_data[monitor_id]['activity'][-1000:]
+    # Load existing data if available
+    activities = []
+    if os.path.exists(activity_file):
+        try:
+            with open(activity_file, 'r') as f:
+                activities = json.load(f)
+        except json.JSONDecodeError:
+            pass
     
-    # Save updated data
-    with open(ACTIVITY_LOG_FILE, 'w') as f:
-        json.dump(activity_data, f)
+    # Add new activity
+    activities.append({
+        'timestamp': timestamp,
+        'monitors': monitors
+    })
+    
+    # Save updated activities
+    with open(activity_file, 'w') as f:
+        json.dump(activities, f, indent=2)
 
-def take_screenshot(output_dir='screenshots', monitor_id=None, all_monitors=False):
+def take_screenshot(monitor_id=None, all_monitors=False):
     """
-    Take a screenshot using the appropriate method based on the operating system.
-    Can target a specific monitor or capture all monitors.
+    Take a screenshot of the specified monitor or all monitors.
     """
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Get timestamp for filename
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    daily_dir = get_daily_folder()
+    screenshots_dir = os.path.join(daily_dir, "screenshots")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
     system = platform.system().lower()
     monitors = get_monitors()
@@ -197,7 +205,7 @@ def take_screenshot(output_dir='screenshots', monitor_id=None, all_monitors=Fals
     for monitor in monitors_to_capture:
         # Generate filename with timestamp and monitor ID
         monitor_suffix = f"_monitor{monitor['id']}"
-        filename = os.path.join(output_dir, f'screenshot_{timestamp}{monitor_suffix}.png')
+        filename = os.path.join(screenshots_dir, f'screenshot_{timestamp}{monitor_suffix}.png')
         
         if system == 'darwin':  # macOS
             cmd = ['screencapture', '-x']
@@ -255,17 +263,21 @@ def take_screenshot(output_dir='screenshots', monitor_id=None, all_monitors=Fals
     
     return success
 
-def generate_activity_report(output_file='screen_activity_report.html'):
+def generate_activity_report():
     """
-    Generate a simple HTML report of screen activity.
+    Generate an HTML report of screen activity for the current day.
     """
-    if not os.path.exists(ACTIVITY_LOG_FILE):
+    daily_dir = get_daily_folder()
+    activity_file = get_activity_log_file()
+    report_file = os.path.join(daily_dir, "reports", "screen_activity_report.html")
+    
+    if not os.path.exists(activity_file):
         print("No activity data available.")
         return False
     
     try:
-        with open(ACTIVITY_LOG_FILE, 'r') as f:
-            activity_data = json.load(f)
+        with open(activity_file, 'r') as f:
+            activities = json.load(f)
         
         html = """
         <!DOCTYPE html>
@@ -288,23 +300,23 @@ def generate_activity_report(output_file='screen_activity_report.html'):
             <h1>Screen Activity Report</h1>
         """
         
-        for monitor_id, data in activity_data.items():
+        for activity in reversed(activities[:100]):  # Show last 100 entries
             html += f"""
             <div class="monitor">
-                <h2>Monitor {monitor_id}: {data['name']}</h2>
+                <h2>Activity at {activity['timestamp']}</h2>
                 <table>
                     <tr>
-                        <th>Timestamp</th>
+                        <th>Monitor</th>
                         <th>Status</th>
                     </tr>
             """
             
-            for entry in reversed(data['activity'][:100]):  # Show last 100 entries
-                status_class = "active" if entry['active'] else "inactive"
-                status_text = "Active" if entry['active'] else "Inactive"
+            for monitor in activity['monitors']:
+                status_class = "active" if monitor['active'] else "inactive"
+                status_text = "Active" if monitor['active'] else "Inactive"
                 html += f"""
                     <tr>
-                        <td>{entry['timestamp']}</td>
+                        <td>{monitor['name']} ({monitor['resolution']})</td>
                         <td class="{status_class}">{status_text}</td>
                     </tr>
                 """
@@ -319,10 +331,10 @@ def generate_activity_report(output_file='screen_activity_report.html'):
         </html>
         """
         
-        with open(output_file, 'w') as f:
+        with open(report_file, 'w') as f:
             f.write(html)
         
-        print(f"Activity report generated: {output_file}")
+        print(f"Activity report generated: {report_file}")
         return True
     
     except Exception as e:
@@ -357,7 +369,7 @@ def main():
         return
     
     if args.generate_report:
-        generate_activity_report(args.report_file)
+        generate_activity_report()
         return
 
     print(f"Starting screenshot capture every {args.interval} seconds...")
@@ -373,7 +385,7 @@ def main():
 
     try:
         while True:
-            if not take_screenshot(args.output_dir, args.monitor, args.all_monitors):
+            if not take_screenshot(args.monitor, args.all_monitors):
                 break
             time.sleep(args.interval)
     except KeyboardInterrupt:

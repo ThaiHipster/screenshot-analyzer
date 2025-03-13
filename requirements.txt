@@ -14,4 +14,6 @@ tqdm>=4.66.0  # For progress bars
 
 # Optional but recommended
 pytest>=7.4.0  # For testing
-black>=23.7.0  # For code formatting 
+black>=23.7.0  # For code formatting
+
+plyer==2.1.0 

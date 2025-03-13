@@ -33,9 +33,17 @@ A powerful tool for analyzing screen time, productivity, and work patterns throu
    - [x] Just the active monitor (default behavior)
 
 #### Time Tracking and Analysis
-- [ ] Daily reports with detailed breakdowns
-- [ ] Activity patterns and trends
-- [ ] Productivity metrics and insights
+- [x] Smart system state detection
+   - [x] Pause tracking when computer is closed/locked
+   - [x] Auto-start tracking when computer is opened
+   - [x] Dynamic day start time based on first computer usage
+- [x] Daily reports with detailed breakdowns
+- [x] Activity patterns and trends
+- [x] Productivity metrics and insights
+- [x] End-of-day analysis (configurable, default 5:00 PM)
+- [x] System notifications
+   - [x] Running status notification
+   - [x] Analysis completion notification
 
 #### 3. Productivity Analysis
 - [ ] Screenshot-based activity tracking
@@ -62,12 +70,12 @@ git clone [repository-url]
 cd screenshot-analyzer
 ```
 
-2. Install dependencies (to be added)
+2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application (to be implemented)
+3. Run the application
 ```bash
 python screenshot_taker.py
 python image_processor.py
@@ -75,7 +83,14 @@ python image_processor.py
 
 ## Usage
 
-Detailed usage instructions will be added as features are implemented.
+### Time Tracking Features
+1. The system automatically starts tracking when you open your computer for the first time each day
+2. You'll receive a notification when the tracking system is running
+3. The system automatically pauses when your computer is closed or locked
+4. At 5:00 PM (configurable), the system will:
+   - Generate a daily analysis report
+   - Send a notification when the analysis is complete
+   - Save detailed metrics about your day
 
 ## Contributing
 
@@ -87,15 +102,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Roadmap
 
-1. Phase 1: Core Screenshot Analysis
+1. Phase 1: Core Screenshot Analysis ✓
    - Basic screenshot capture
    - Local storage implementation
    - Multi-screen detection
 
-2. Phase 2: Time Tracking
+2. Phase 2: Time Tracking ✓
    - Daily report generation
    - Time breakdown analytics
    - Activity patterns
+   - Smart system state detection
+   - Notification system
 
 3. Phase 3: Productivity Features
    - Screen usage analysis
