@@ -37,22 +37,24 @@ A powerful tool for analyzing screen time, productivity, and work patterns throu
    - [x] Pause tracking when computer is closed/locked
    - [x] Auto-start tracking when computer is opened
    - [x] Dynamic day start time based on first computer usage
-- [x] Daily reports with detailed breakdowns
-- [x] Activity patterns and trends
-- [x] Productivity metrics and insights
-- [x] End-of-day analysis (configurable, default 5:00 PM)
-- [x] System notifications
-   - [x] Running status notification
-   - [x] Analysis completion notification
+- [ ] Daily reports with detailed breakdowns
+- [ ] Activity patterns and trends
+- [ ] Productivity metrics and insights
+- [ ] End-of-day analysis (configurable, default 5:00 PM)
+- [ ] System notifications
+   - [ ] Running status notification
+   - [ ] Analysis completion notification
 
-#### 3. Productivity Analysis
-- [ ] Screenshot-based activity tracking
-- [ ] Application usage patterns
+#### Productivity Analysis
+- [x] Screenshot-based activity tracking
+- [x] Application usage patterns
 - [ ] Focus time vs. distraction metrics
+   - [ ] If something hasn't moved in 5 minutes then someone is inactive
+   - [ ] Define some websites as distractions
 - [ ] Productivity score calculations
 
-#### 4. Company Questions Integration
-- [ ] Built-in questionnaire system
+#### Company Questions Integration
+- [x] Built-in questionnaire system
 - [ ] Progress tracking
 - [ ] Response analysis
 - [ ] Performance metrics
@@ -60,7 +62,7 @@ A powerful tool for analyzing screen time, productivity, and work patterns throu
 ## Getting Started
 
 ### Prerequisites
-- macOS (currently supported on darwin 24.2.0)
+- macOS or Windows (currently supported on darwin 24.2.0)
 - Python (version 3.11.1)
 
 ### Installation
@@ -84,10 +86,10 @@ python image_processor.py
 ## Usage
 
 ### Time Tracking Features
-1. The system automatically starts tracking when you open your computer for the first time each day
-2. You'll receive a notification when the tracking system is running
-3. The system automatically pauses when your computer is closed or locked
-4. At 5:00 PM (configurable), the system will:
+1. The system starts tracking when you open your computer for the first time each day
+2. (upcoming) You'll receive a notification when the tracking system is running
+3. (upcoming) The system pauses when your computer is closed or locked
+4. (upcoming) At 5:00 PM (configurable), the system will:
    - Generate a daily analysis report
    - Send a notification when the analysis is complete
    - Save detailed metrics about your day
@@ -98,7 +100,7 @@ Guidelines for contributing will be added as the project develops.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache License - see the LICENSE file for details.
 
 ## Roadmap
 
